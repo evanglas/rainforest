@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block content %}
+<h1>Account Options [Your Account Number: {{ current_user.id }}]</h1>
+
+<body>
+  <button onclick="action1()">Search for buyer purchases</button>
+  <button onclick="action4()">Search for public account information</button>
+  <button onclick="action2()">Update User Account Info</button>
+  <button onclick="action3()">Update Account Balance</button>
+  <button onclick="action5()">View Your Reviews</button>
+
+  <script>
+    function action1() {
+      window.location.href = '{{ url_for("users.buyerSearchPage") }}'
+    }
+    function action2() {
+      window.location.href = '{{ url_for("users.update", uid=current_user.id) }}'
+    }
+    function action3() {
+      window.location.href = '{{ url_for("users.addToAccountBalance", uid=current_user.id) }}'
+    }
+    function action4() {
+      window.location.href = '{{ url_for("users.accountPublicViewSearchPage") }}'
+    }
+    function action5() {
+      window.location.href = '{{ url_for("reviews.user_reviews") }}'
+    }
+  </script>
+</body>
+</html>
+
+{% endblock %}

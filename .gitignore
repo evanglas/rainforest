@@ -1,0 +1,11 @@
+**/*~
+**/__pycache__
+**/.venv
+poetry.lock
+
+.flaskenv
+.env
+
+.vscode/settings.json
+
+db/generated/*.csv

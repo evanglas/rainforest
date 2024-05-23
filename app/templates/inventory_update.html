@@ -1,0 +1,69 @@
+{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Inventory</title>
+    <head>
+      <title>Update inventory</title>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+  <body>
+    
+<form action="" method="post">
+  <p>
+    {{ form.pid.label }}<br/>
+    {{ form.pid(size=32) }}<br/>
+    {% for error in form.pid.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.quantity.label }}<br/>
+    {{ form.quantity(size=32) }}<br/>
+    {% for error in form.quantity.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.price.label }} <br/>
+    {{ form.price(size=32) }}<br/>
+    {% for error in form.price.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.promo_code.label }}<br/>
+    {{ form.promo_code(size=32) }}<br/>
+    {% for error in form.promo_code.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>{{ form.submit() }}</p>
+</form>
+  </body>
+</html>
+<h1>Add product to inventory</h1>
+
+
+{% endblock %}

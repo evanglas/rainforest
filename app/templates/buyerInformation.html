@@ -1,0 +1,78 @@
+{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>User Information</title>
+    <form action="{{ url_for('users.buyerInformation', uid=uid) }}" method="GET">
+      <label for="item_filter">Filter by Item:</label>
+      <input type="text" name="item_filter" id="item_filter" placeholder="Enter item name">
+      
+      <label for="seller_filter">Filter by Seller:</label>
+      <input type="text" name="seller_filter" id="seller_filter" placeholder="Enter seller first name">
+      
+      <label for="date_filter">Filter by Date:</label>
+      <input type="date" name="date_filter" id="date_filter">
+      
+      <button type="submit">Apply Filters</button>
+    </form>
+    <head>
+      <title>Items Purchased By User</title>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+  <body>
+    <h2>User Purchases</h2>
+    <table class='table table-hover table-bordered container'>
+      <thead class="thead-dark">
+        <th>Buyer Name</th>
+        <th>Product Name</th>
+        <th>Seller Name</th>
+        <th>Quantity</th>
+        <th>Cost Per Item</th>
+        <th>Total Cost</th>
+        <th>fulfillment Status</th>
+        <th>Modified Date</th>
+        <th>Link to Order Detail Page</th>
+      </thead>
+      <tbody>
+      {% for item in purchases %}
+      <tr>
+        <td>{{ item.buyer_name }}</td>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.seller_name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>${{ item.cost_per_item }}</td>
+        <td>${{ item.cost_per_item * item.quantity }}</td>
+        <td>{{ item.fulfillment_status }}</td>
+        <td>{{ item.modified_date }}</td>
+        <td> <a class="btn btn-secondary" href="{{ url_for('order_page.order_page', order_id=item.order_id, uid=uid) }}">Link to Order</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <td colspan="9">{{ pagination.links }}</td>
+  </table>
+  </body>
+  <a class="btn btn-secondary" href="{{ url_for('users.buyerSearchPage') }}" role="button">Back</a>
+</html>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shopping Cart</title>
+    <head>
+      <title>Shopping Cart</title>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+  <body>
+    <br>
+    <br>
+    <h2>Order Placed Successfully! Order Number: {{order_id}} </h2>
+    <h2> Overall Fulfillment Status: {{"Fulfilled" if overall_fulfillment_status else "Not Fulfilled"}} </h2>
+    <table>
+      <tr>
+        <th>Product ID</th>
+        <th>Item Name</th>
+        <th>Seller Name</th>
+        <th>Final Price</th>
+        <th>Quantity</th>
+        <th>Subtotal</th>
+        <th>Fulfillment Status</th>
+      </tr>
+      {% for item in cart %}
+      <tr>
+        <td>{{ item.pid }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.seller_first_name ~ " " ~ item.seller_last_name }} </td>
+        <td>${{ item.price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>${{ item.price * item.quantity }}</td>
+        <td>{{ "Fulfilled" if item.fulfillment_status else "Not Fulfilled" }}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="5"></td>
+        <td class="total-block"><b>Total: ${{ total }}</b></td>
+      </tr>
+    </table>
+  </body>
+</html>
+
+{% endblock %}

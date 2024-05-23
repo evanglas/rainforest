@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block content %}
+<html>
+  <head>
+    <title>User Information</title>
+    <!-- Insert CSS or other meta tags here if needed -->
+  </head>
+  <body>
+    <h1>User Information</h1>
+    <p>Account Number: {{ user.id }}</p>
+    <p>First Name: {{ user.first_name }}</p>
+    <p>Last Name: {{ user.last_name }}</p>
+    <h1>Seller Information</h1>
+    <p>Email: {{ user.email }}</p>
+    <p>Address: {{ user.address }}</p>
+    <br><br>
+    <h2>Reviews for this seller:</h2>
+    <p>Average Review: {{average_rating}}</p>
+    <p>Number of Reviews: {{count}}</p>
+    <table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+        <tr>
+        <th scope="col">Reviewer ID</th>
+        <th scope="col">Reviewed Seller ID</th>      
+        <th scope="col">Rating</th>
+        <th scope="col">Review Text</th>      
+        <th scope="col">Review Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for review in reviews%}
+        <tr>
+            <th scope="row">{{review.buyer_id}}</th>
+            <th scope="row">{{review.sid}}</th>
+            <th scope="row">{{review.rating}}</th>
+            <th scope="row">{{review.text}}</th>
+            <td>{{humanize_time(review.review_date)}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <td colspan="7">{{ pagination.links }}</td>
+    </table>
+    {% if current_user.is_authenticated %}
+    <div class="col text-center">
+      <p class="text-center"><button onclick="action1()">If you've purchased from this seller, you can add/update your review</button></p>
+    </div>
+    {% endif %}
+    <!-- Insert other content here -->
+    <a class="btn btn-secondary" href="{{ url_for('users.accountPublicViewSearchPage') }}" role="button">Back</a>
+  </body>
+</html>
+<script>
+  function action1() {
+    window.location.href = "{{ url_for('reviews.updateSellerReview', buyer_id=current_user.id, sid=user.id) }}";
+  }
+</script>
+
+{% endblock %}

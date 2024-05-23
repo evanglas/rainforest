@@ -1,0 +1,404 @@
+{% extends "base.html" %} {% block content %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shopping Cart</title>
+    <head>
+      <title>Shopping Cart</title>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+  <body>
+    <h2>Shopping Cart</h2>
+    <table>
+      <tr>
+        <th>Product ID</th>
+        <th>Item Name</th>
+        <th>Seller Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Subtotal</th>
+        <th>Remove from Cart</th>
+      </tr>
+      {% for item in cart %}
+      <tr>
+        <td>{{ item.pid }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.seller_first_name ~ " " ~ item.seller_last_name }} </td>
+        <td>${{ item.price }}</td>
+        <td>
+          <div class="d-flex justify-content-center" style="width: 100px">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button
+                  class="decrement-button"
+                  type="button"
+                  onclick="decrementValue('{{ item.quantity }}', '{{item.pid}}', '{{item.sid}}')"
+                  data-pid = "{{ item.pid }}"
+                  data-sid = "{{ item.sid }}"
+                  data-quantity = "{{ item.quantity }}"
+                  data-price = "{{ item.price }}"
+                >
+                  -
+                </button>
+              </div>
+              <input
+                type="text"
+                id="({{item.pid}}, {{item.sid}})"
+                class="form-control form-control-sm"
+                value="{{ item.quantity }}"
+              />
+              <div class="input-group-append">
+                <button
+                  class="increment-button"
+                  type="button"
+                  onclick="incrementValue('{{ item.quantity }}', '{{item.pid}}', '{{item.sid}}')"
+                  data-pid = "{{ item.pid }}"
+                  data-sid = "{{ item.sid }}"
+                  data-quantity = "{{ item.quantity }}"
+                  data-price = "{{ item.price }}"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+        </td>
+        <!-- <td>{{ item.quantity }}</td> -->
+        <td>${{ item.price * item.quantity }}</td>
+
+        <td> 
+          <button class="remove-from-cart-button" data-id = "{{ item.id }}" 
+          data-pid="{{ item.pid }}" data-sid="{{ item.sid }}"> Remove from Cart</button>
+        </td>
+      </tr>
+      {% endfor %}
+      {{ pagination_cart.links }}
+      <script>
+        document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('increment-button')) {
+        var button = event.target;
+        var pid = button.getAttribute('data-pid');
+        var sid = button.getAttribute('data-sid');
+        var quantity = button.getAttribute('data-quantity');
+        var price = button.getAttribute('data-price');
+        var promo_code = button.getAttribute('data-promo_code');
+        var uid = "{{ current_user.id }}";
+
+        var formData = new FormData();
+        formData.append("uid", uid);
+        formData.append("pid", pid);
+        formData.append("sid", sid);
+        formData.append("quantity", quantity);
+        formData.append("update_quantity", 1)
+        formData.append("price", price);
+        formData.append("promo_code", promo_code);
+
+        fetch("/cart/" + pid, {
+            method: "POST",
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log("Quantity incremented successfully:", data);
+            // Handle success, e.g., display a success message
+        })
+        .catch(error => {
+            console.error("Error", error);
+            // Handle error, e.g., display an error message
+        })}});
+        document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('decrement-button')) {
+      
+        var button = event.target;
+        var pid = button.getAttribute('data-pid');
+        var sid = button.getAttribute('data-sid');
+        var quantity = button.getAttribute('data-quantity');
+        var price = button.getAttribute('data-price');
+        var promo_code = button.getAttribute('data-promo_code');
+        var uid = "{{ current_user.id }}";
+
+        var formData = new FormData();
+        formData.append("uid", uid);
+        formData.append("pid", pid);
+        formData.append("sid", sid);
+        formData.append("quantity", quantity);
+        formData.append("update_quantity", -1)
+        formData.append("price", price);
+        formData.append("promo_code", promo_code);
+
+        fetch("/cart/" + pid, {
+            method: "POST",
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log("Product quantity decremented successfully:", data);
+            // Handle success, e.g., display a success message
+        })
+        .catch(error => {
+            console.error("Error", error);
+            // Handle error, e.g., display an error message
+        })}});
+      </script>
+      <tr>
+        <td colspan="5"></td>
+        <td class="total-block"><b>Total: ${{ total }}</b></td>
+      </tr>
+    </table>
+  </body>
+  <script>
+    document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('remove-from-cart-button')) {
+        if (confirm("Are you sure you want to remove this item from the cart?")) {
+        var formData = new FormData();
+        var button = event.target;
+        var pid = button.getAttribute('data-pid');
+        var sid = button.getAttribute('data-sid');
+        var id = button.getAttribute('data-id');
+        formData.append("uid", "{{ current_user.id }}");
+        formData.append("pid", pid);
+        formData.append("sid", sid); // Add seller ID
+        formData.append("quantity", 0);
+        formData.append("wishlist", 'false');
+        formData.append("cart_id", id)
+        formData.append("is_cart", true);
+        formData.append("remove", true)
+      // cart + uid
+        fetch("/cart/" + "{{ current_user.id }}", {
+          method: "POST",
+          body: formData,
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.text();
+        })
+        .then((data) => {
+          console.log("Item removed from the cart.");
+          // Optionally, update the UI to reflect the removal
+        })
+        .catch((error) => {
+          console.error("There was a problem removing the item from the cart:", error);
+          // Optionally, show an error message to the user
+        });
+        var td = event.target.parentNode;
+        var tr = td.parentNode; // the row to be removed
+        tr.parentNode.removeChild(tr); // remove the row
+
+        }
+      }
+    });
+
+  </script>
+  <!-- <button type="button" class="btn btn-primary" onclick="placeOrder()"> Place Order</button> -->
+  <a href="/order_placed/{{ current_user.id }}" class="btn btn-primary" id="placeOrder">Place Order</a>
+  <script>
+    document.getElementById("placeOrder").addEventListener("click", function(event) {
+          if (!sessionStorage.getItem('orderPlaced')) {
+            sessionStorage.setItem('orderPlaced', true);
+          console.log("Place Order button clicked");
+          this.disabled = true;
+        var uid = "{{ current_user.id }}";
+        var formData = new FormData();
+        formData.append("uid", "{{ current_user.id }}");
+        
+        fetch("/order_placed/" + uid, {
+            method: "POST",
+            body: formData,
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then(data => {
+            // Handle the response from the server, e.g., display a success message
+            // alert("Order placed successfully!");
+            window.href = "/order_placed/{{ current_user.id }}";
+            // No need to redirect if the <a> tag already has an href attribute
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+  }
+    );
+    function incrementValue(quantity,pid,sid) {
+      var id = "(" + pid + ", " + sid + ")";
+      var value = parseInt(document.getElementById(id).value, 10);
+      value = isNaN(value) ? 0 : value;
+      value++;
+      document.getElementById(id).value = value;
+    }
+
+    function decrementValue(quantity,pid,sid) {
+      var id = "(" + pid + ", " + sid + ")";
+      var value = parseInt(document.getElementById(id).value, 10);
+      value = isNaN(value) ? 0 : value;
+      value < 1 ? (value = 1) : "";
+      value--;
+      document.getElementById(id).value = value;
+    }
+    </script>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+  <body>
+    <h2>Wishlist</h2>
+    <table>
+      <tr>
+        <th>Product ID</th>
+        <th>Item Name</th>
+        <th>Seller Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Subtotal</th>
+        <th> Remove from Wishlist </th>
+        <th> Add to Cart
+      </tr>
+      {% for item in saveforlater %}
+      <tr>
+        <td>{{ item.pid }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.seller_first_name ~ " " ~ item.seller_last_name }} </td> 
+        <td>${{ item.price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>${{ item.price * item.quantity }}</td>
+        <td> <button type="button" class="btn btn-light" onclick="confirmDelete(event, '{{ item.pid }}','false')"> Delete Item </button>
+          <script>
+            function confirmDelete(event,pid,is_cart) {
+              if (confirm("Are you sure you want to remove this item from the cart?")) {
+                deleteItem(event,pid,is_cart);
+              }
+            }
+          
+            function deleteItem(event,pid,is_cart) {
+          
+              var td = event.target.parentNode;
+              var tr = td.parentNode; // the row to be removed
+              tr.parentNode.removeChild(tr); // remove the row
+              
+              var formData = new FormData();
+              formData.append("uid", "{{ current_user.id }}");
+              formData.append("pid", pid);
+              formData.append("sid", "{{ item.sid }}"); // Add seller ID
+              formData.append("quantity", 0);
+              formData.append("wishlist", 'false');
+              formData.append("cart_id", "{{ item.id }}")
+              formData.append("is_cart", is_cart);
+            // cart + uid
+              fetch("/cart/" + "{{ current_user.id }}", {
+                method: "POST",
+                body: formData,
+              })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return response.text();
+              })
+              .then((data) => {
+                console.log("Item removed from wishlist.");
+                // Optionally, update the UI to reflect the removal
+              })
+              .catch((error) => {
+                console.error("There was a problem removing the item from the cart:", error);
+                // Optionally, show an error message to the user
+              });
+            }
+          </script>
+        </td>
+        <td> 
+          <button 
+          class="add-to-cart-button" data-quantity = "{{ item.quantity }}"
+          data-pid="{{ item.pid }}" data-sid="{{ item.sid }}"> Add to Cart </button>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="5"></td>
+        <td class="total-block"><b>Total: ${{ total_saveforlater }}</b></td>
+      </tr>
+    </table>
+    <script>
+      document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('add-to-cart-button')) {
+          var button = event.target;
+          var quantityInput = button.closest('tr').querySelector('.form-control');
+          var pid = button.getAttribute('data-pid');
+          var sid = button.getAttribute('data-sid');
+          var quantity = button.getAttribute('data-quantity');
+          var uid = "{{ current_user.id }}";
+          var td = event.target.parentNode;
+          var tr = td.parentNode; // the row to be removed
+          tr.parentNode.removeChild(tr); // remove the row
+          var formData = new FormData();
+          formData.append("uid", uid);
+          formData.append("pid", pid);
+          formData.append("sid", sid);
+          formData.append("quantity", quantity);
+          formData.append("wishlist", false);
+          formData.append("remove_from_wishlist",true)
+
+          fetch("/product/" + pid, {
+              method: "POST",
+              body: formData,
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error("Network response was not ok");
+              }
+              return response.text();
+          })
+          .then(data => {
+              console.log("Product added to cart successfully:", data);
+              // Handle success, e.g., display a success message
+          })
+          .catch(error => {
+              console.error("Error adding product to cart:", error);
+              // Handle error, e.g., display an error message
+          });
+        }
+      });
+    </script>
+  </body>
+  {{ pagination_saveforlater.links }}
+</html>
+
+{% endblock %}

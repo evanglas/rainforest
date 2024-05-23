@@ -1,0 +1,222 @@
+{% extends "base.html" %} {% block content %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const numberOfLeaves = 20;
+    const leavesContainer = document.querySelector('.falling-leaves');
+
+    for (let i = 0; i < numberOfLeaves; i++) {
+      const leaf = document.createElement('img');
+      leaf.src = '{{ url_for("static", filename="logo_icon.svg") }}';
+      leaf.alt = 'Logo';
+      leaf.className = 'leaf';
+
+      const scale = Math.random() * 0.5 + 0.5;
+      const xPos = Math.random() * 100;
+      const animationDuration = Math.random() * 10 + 10;
+
+      leaf.style.width = `${scale * 50}px`;
+      leaf.style.left = `${xPos}vw`;
+      leaf.style.animationDuration = `${animationDuration}s`;
+
+      leavesContainer.appendChild(leaf);
+    }
+  });
+</script>
+
+<style>
+  .square-image-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .square-image-wrapper::before {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+    z-index: -1;
+  }
+
+  .square-image-wrapper img {
+    position: absolute;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .filter-container {
+    background-color: rgba(211, 244, 255, 0.9);
+  }
+
+  .falling-leaves {
+    position: fixed;
+    top: 90px;
+    z-index: -1;
+    width: 100%;
+    height: 100vh;
+    overflow: visible;
+  }
+
+  .leaf {
+    position: absolute;
+    animation: fallAndSpin 20s linear infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes fallAndSpin {
+    0% {
+      transform: translateY(-300px) rotate(0deg);
+    }
+
+    100% {
+      transform: translateY(1000px) rotate(360deg);
+    }
+  }
+</style>
+
+<div class="d-flex flex-row-reverse align-items-center pb-2 pt-3">
+  <div class="d-inline-block">
+    <select id="limitDropdown" class="form-select" style="max-width: 200px">
+      {% for l in limit_options %}
+      <option {% if l|string==limit_choice|string %}selected{% endif %} value="{{l}}">{{l}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <label for=" limitDropdown" class="label me-2">Show:</label>
+  <div class="d-inline-block mx-2">
+    <select id="sortDropdown" class="form-select" style="max-width: 200px">
+      {% for s in sort_options %}
+      <option {% if s==sort_by %}selected{% endif %}>{{s}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <label for="sortDropdown" class="label">Sort by:</label>
+  <div class="search-bar me-2">
+    <input type="text" id="searchQuery" class="form-control" placeholder="Search products..." value="{{search_query}}"
+      onkeydown="searchProducts(event)">
+  </div>
+</div>
+<div class="falling-leaves"></div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col mt-4 filter-container" style="max-width: 300px">
+      <h4 class="pt-2">Filter</h4>
+
+      <div class="row align-items-center my-1">
+        <div class="col">
+          <label for="priceMin" class="form-label">Min Price ($)</label>
+        </div>
+        <div class="col">
+          <input type="number" id="priceMin" class="form-control" placeholder="Min Price"
+            value="{{filter.get('price_min', '') }}" min="0" />
+        </div>
+      </div>
+
+      <div class="row align-items-center my-1">
+        <div class="col">
+          <label for="priceMax" class="form-label">Max Price ($)</label>
+        </div>
+        <div class="col">
+          <input type="number" id="priceMax" class="form-control" placeholder="Max Price"
+            value="{{filter.get('price_max', '') }}" min="0" />
+        </div>
+      </div>
+
+      <div class="row align-items-center my-1">
+        <div class="col">
+          <label for="avgProductRatingMin" class="form-label">Min Avg Rating</label>
+        </div>
+        <div class="col">
+          <input type="number" id="avgProductRatingMin" class="form-control" placeholder="Min Product Rating"
+            value="{{filter.get('avg_product_rating_min', '') }}" min="0" />
+        </div>
+      </div>
+
+      <div class="row align-items-center my-1">
+        <div class="col">
+          <label for="avgSellerRatingMin" class="form-label">Min Seller Rating</label>
+        </div>
+        <div class="col">
+          <input type="number" id="avgSellerRatingMin" class="form-control" placeholder="Min Seller Rating"
+            value="{{filter.get('avg_seller_rating_min', '') }}" min="0" />
+        </div>
+      </div>
+
+      <div class="row align-items-center my-1">
+        <div class="col">
+          <label for="category" class="form-label" value="{{filter.get('category', 'All') }}">Category</label>
+        </div>
+        <div class="col">
+          <select id="category" class="form-select">
+            <option category_id="{{category.id}}">{{category.name}}</option>
+            {% for p in parent_categories %}
+            <option category_id="{{p.id}}">{{p.name}}</option>
+            {% endfor %}
+            {% for c in child_categories %}
+            <option category_id="{{c.id}}">{{c.name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="d-flex flex-row">
+        <div class="me-3">
+          <button id="filterButton" class="btn btn-primary">Apply</button>
+        </div>
+        <div>
+          <button id="clearFilterButton" class="btn btn-secondary">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+
+      <div id="productsDiv" class="row">
+        {% for i, _ in enumerate(landing_items) %}
+        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 g-4">
+          <div class="card h-100">
+            <div class="card-body pb-1">
+              <a href="/product/{{ landing_products[i].id }}">
+                <div class="square-image-wrapper">
+                  <img src="{{landing_products[i].image_src}}" class="card-img-top"
+                    alt="{{landing_products.short_name}}" />
+                </div>
+              </a>
+              <h5 class="fs-4 mt-2">
+                {{ landing_products[i].short_name }}
+              </h5>
+              <p class="card-text mb-0 fs-5 text-danger">${{ landing_items[i].price }}</p>
+              <div class="rating" style="display: flex; align-items: center;">
+                {% set avg_rating = product_ratings[i] | float | round %}
+                {% for _ in range(avg_rating | int) %}
+                <span class="fs-3 text-warning">★</span>
+                {% endfor %}
+                {% for _ in range(5 - avg_rating | int) %}
+                <span class="fs-3 text-warning">☆</span>
+                {% endfor %}
+                ({% if rating_counts[i] == 0 %}
+                No Ratings
+                {% else %}
+                {{ product_ratings[i] }}
+                {% endif %})
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div style="max-width: 700px">
+        {{ pagination.links }}
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

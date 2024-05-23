@@ -1,0 +1,142 @@
+{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Inventory</title>
+    <head>
+      <title>Inventory</title>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+  <body>
+    <h2>Inventory</h2>
+  </tr>
+    <table>
+      <tr>
+        <th>Seller ID</th>
+        <th>Product ID</th>
+        <th>Product Name</th>
+        <th>Product price</th>
+        <th>Product promo code</th>
+        <th>Product quantity</th>
+        <th></th>
+      </tr>
+    {% for item in inventory %}
+      <tr>
+        <td>{{ item.sid }}</td>
+        <td>{{ item.id }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.price }}</td>
+        <td>{{ item.promo_code }}</td>
+        <td>{{ item.quantity }} <a href="{{ url_for('seller.seller', uid=current_user.id, start = start, end = end, action='edit='+'{0:d}'.format(item.id)) }}">(Edit)</a></td>
+        <td><a href="{{ url_for('seller.seller', uid=current_user.id, start = start, end = end, action='delete='+'{0:d}'.format(item.id)) }}">Delete</a></td>
+        </td>
+      </tr>
+      {% endfor %}
+      {{ pagination.links }}
+    </table>
+  </body>
+</html>
+<h2>Add/delete products</h2>
+
+<form id="inventoryForm" action="" method="post">
+  {{ form.hidden_tag() }}
+  <p>
+    {{ form.pid.label }}<br/>
+    {{ form.pid(size = 32) }}
+    {% for error in form.pid.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.quantity.label }}<br/>
+    {{ form.quantity(size=32) }}<br/>
+    {% for error in form.quantity.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.price.label }} <br/>
+    {{ form.price(size=32) }}<br/>
+    {% for error in form.price.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.promo_code.label }}<br/>
+    {{ form.promo_code(size=32) }}<br/>
+    {% for error in form.promo_code.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+  </p>
+  <p>{{ form.submit() }}</p>
+</form>
+
+<h2>Order fulfillment</h2>
+<table>
+  <tr>
+    <th>Lineitem ID</th>
+    <th>Seller ID</th>
+    <th>Customer ID</th>
+    <th>Customer address</th>
+    <th>Product name</th>
+    <th>Product quantity</th>
+    <th>Line item cost</th>
+    <th>Purchase date</th>
+    <th>Fulfillment status</th>
+    <th></th>
+  </tr>
+  {% for item in orderline %}
+  <tr>
+    <td>{{ item.id }}</td>
+    <td>{{ item.sid }}</td>
+    <td>{{ item.customer_id }}</td>
+    <td>{{ item.address }}</td>
+    <td>{{ item.name }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>${{ item.revenue }}</td>
+    <td>{{ item.purchase_date }}</td>
+    <td>{{ item.fulfillment_status }}</td>
+    {% if item.fulfillment_status == True%}
+      <td>Orderline fulfilled</td>
+    {% else %}
+      <td><a href="{{ url_for('seller.seller', uid=current_user.id, action='fulfill='+'{0:d}'.format(item.id)) }}">Fulfill</a></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+  {{ pagination_orderline.links }}
+</table>
+</body>
+
+{% endblock %}

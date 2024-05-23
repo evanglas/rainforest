@@ -1,0 +1,225 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <!-- Flash messages -->
+  <div class="row">
+    <div class="col-6">
+      <div class="col">
+        <div class="col">
+          <img
+            class="img-fluid p-5"
+            src="{{product.image_src}}"
+            alt="{{ product.name }}"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="col p-5">
+        <h1>{{ product.name }}</h1>
+        <p>{{ product.description }}</p>
+        <p>{{'Average Review: ' + average_review }}</p>
+        <p>{{'Number of Reviews: ' + num_review }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col text-center">
+      <h1 class="text-center">Sellers</h1>
+    </div>
+  </div>
+  <div class="row">
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th scope="col">Seller</th>
+          <th scope="col">Available Units</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i, _ in enumerate(items) %}
+        <tr>
+          <td>{{ loop.index + pagination_sellers.skip }}</td>
+          <td>{{ sellers[i].first_name + ' ' + sellers[i].last_name}}</td>
+          <td>{{ items[i].quantity }}</td>
+          <td>{{ items[i].price }}</td>
+          <td>
+            <div class="d-flex justify-content-center" style="width: 100px">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    onclick="decrementValue('quantity{{i}}')"
+                  >
+                    -
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  id="quantity{{i}}"
+                  class="form-control form-control-sm"
+                  value="1"
+                />
+                <div class="input-group-append">
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    onclick="incrementValue('quantity{{i}}')"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <button class="add-to-cart-btn" data-pid="{{ items[i].pid }}" data-sid="{{ sellers[i].id }}">
+              Add to Cart
+            </button>
+
+          </td>
+          <td>
+            <button class="add-to-wishlist-btn" data-pid="{{ items[i].pid }}" data-sid="{{ sellers[i].id }}">
+              Add to Wishlist </button>
+          </td>
+        </tr>
+        {% endfor %}
+        <script>
+         document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('add-to-cart-btn')) {
+        var button = event.target;
+        var quantityInput = button.closest('tr').querySelector('.form-control');
+        var pid = button.getAttribute('data-pid');
+        var sid = button.getAttribute('data-sid');
+        var quantity = quantityInput.value;
+        var uid = "{{ current_user.id }}";
+
+        var formData = new FormData();
+        formData.append("uid", uid);
+        formData.append("pid", pid);
+        formData.append("sid", sid);
+        formData.append("quantity", quantity);
+        formData.append("wishlist", false);
+        formData.append("remove_from_wishlist",false)
+
+        fetch("/product/" + pid, {
+            method: "POST",
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log("Product added to cart successfully:", data);
+            // Handle success, e.g., display a success message
+        })
+        .catch(error => {
+            console.error("Error adding product to cart:", error);
+            // Handle error, e.g., display an error message
+        });
+    }
+
+  if (event.target.classList.contains('add-to-wishlist-btn')) {
+        var button = event.target;
+        var quantityInput = button.closest('tr').querySelector('.form-control');
+        var pid = button.getAttribute('data-pid');
+        var sid = button.getAttribute('data-sid');
+        var quantity = quantityInput.value;
+        var uid = "{{ current_user.id }}";
+
+        var formData = new FormData();
+        formData.append("uid", uid);
+        formData.append("pid", pid);
+        formData.append("sid", sid);
+        formData.append("quantity", quantity);
+        formData.append("wishlist", true);
+
+        fetch("/product/" + pid, {
+            method: "POST",
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then(data => {
+            console.log("Product added to wishlist successfully:", data);
+            // Handle success, e.g., display a success message
+        })
+        .catch(error => {
+            console.error("Error adding product to wishlist:", error);
+            // Handle error, e.g., display an error message
+        });
+    }
+});
+        </script>
+        <script>
+          function incrementValue(id) {
+            var value = parseInt(document.getElementById(id).value, 10);
+            value = isNaN(value) ? 0 : value;
+            value++;
+            document.getElementById(id).value = value;
+          }
+
+          function decrementValue(id) {
+            var value = parseInt(document.getElementById(id).value, 10);
+            value = isNaN(value) ? 0 : value;
+            value < 1 ? (value = 1) : "";
+            value--;
+            document.getElementById(id).value = value;
+          }
+        </script>
+      </tbody>
+    </table>
+    {{ pagination_sellers.info }}
+    {{ pagination_sellers.links }}
+  </div>
+  <div class="row">
+    <div class="col text-center">
+      <h1 class="text-center">Reviews</h1>
+    </div>
+  </div>
+  {% if current_user.is_authenticated %}
+  <div class="col text-center">
+    <h3 class="text-center"><button onclick="action1()">Add/Update Your Review</button></h3>
+  </div>
+  {% endif %}
+  <div class="row">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Reviewer</th>
+          <th scope="col">Review Date</th>
+          <th scope="col">Rating</th>
+          <th scope="col">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i, _ in enumerate(product_reviews) %}
+        <tr>
+          <td>{{ reviewers[i].first_name }}</td>
+          <td>{{ product_reviews[i].review_date}}</td>
+          <td>{{ product_reviews[i].rating}}</td>
+          <td>{{ product_reviews[i].text }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {{ pagination_product_reviews.links }}
+  </div>
+</div>
+<script>
+  function action1() {
+    window.location.href = "{{ url_for('reviews.updateProductReview', uid=current_user.id, pid=product.id) }}";
+  }
+</script>
+
+{% endblock %}

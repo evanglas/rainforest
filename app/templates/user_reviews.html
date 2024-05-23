@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<br><br>
+{% if current_user.is_authenticated %}
+<h2>Reviews You Posted:</h2>
+{% if reviews != None %}
+<table class='table table-hover table-bordered container'>
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Your ID</th>
+      <th scope="col">Reviewed Product ID ("None" if seller review)</th>
+      <th scope="col">Reviewed Seller ID ("None" if product review)</th>      
+      <th scope="col">Rating</th>
+      <th scope="col">Review Text</th>      
+      <th scope="col">Review Date</th>
+      <th scope="col">Update Review</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for review in reviews%}
+      <tr>
+        <th scope="row">{{review.reviewer_id}}</th>
+        <th scope="row">{{review.product_id}}</th>
+        <th scope="row">{{review.seller_id}}</th>
+        <th scope="row">{{review.rating}}</th>
+        <th scope="row">{{review.text}}</th>
+        <td>{{humanize_time(review.review_date)}}</td>
+        {% if review.product_id != None %}
+        <td><a href="{{ url_for('reviews.updateProductReview', uid=review.reviewer_id, pid=review.product_id) }}">Update</a></td>
+        {% else %}
+        <td><a href="{{ url_for('reviews.updateSellerReview', buyer_id=review.reviewer_id, sid=review.seller_id) }}">Update</a></td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </tbody>
+  <td colspan="7">{{ pagination.links }}</td>
+</table>
+<a class="btn btn-secondary" href="{{ url_for('reviews.reviewsearch') }}" role="button">Back</a>
+{% else %}
+<th>You have no reviews.</th>
+{% endif %}
+{% else %}
+<p><a href="{{ url_for('users.login') }}">Log in</a> to see your reviews!</p>
+{% endif %}
+
+{% endblock %}

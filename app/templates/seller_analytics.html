@@ -1,0 +1,71 @@
+{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+<html>
+<body>
+<h2>Top Products</h2>
+<table>
+    <tr>
+        <th>Product</th>
+        <th></th>
+        <th>Sales</th>
+    </tr>
+    {% for item in top_sales%}
+    <tr>
+        <td> {{item.name}} </td>
+        <td> </td>
+        <td> ${{item.rev}} </td>
+        <td><a href="{{ url_for('seller.seller', uid=current_user.id, action='edit='+'{0:d}'.format(item.pid)) }}">Increase availability</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{{ pagination_top_sales.links }}
+</body>
+</html>
+
+<html>
+<body>
+<h2>Top Customers</h2>
+<table>
+    <tr>
+        <th>Customer ID</th>
+        <th>Customer Name</th>
+        <th>Revenue from Customer</th>
+        <th>Customer Email</th>
+    </tr>
+    {% for item in top_customers%}
+    <tr>
+        <td> {{item.customer_id}} </td>
+        <td> {{item.first_name}} {{item.last_name}}</td>
+        <td> ${{item.rev}} </td>
+        <td> {{item.email}} </td>
+    </tr>
+    {% endfor %}
+</table>
+{{ pagination_top_customers.links }}
+</body>
+</html>
+{% endblock %}

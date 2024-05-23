@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Edit Product</h1>
+
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.product_id.label }}<br />
+        {{ form.product_id(size = 32) }}
+    </div>
+    <div>
+        {{form.product_name.label}}
+        <br>
+        {{form.product_name(size=32)}}
+        {% if form.product_name.errors %}
+        <ul>
+            {% for error in form.product_name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <div>
+        {{form.product_short_name.label}}
+        <br>
+        {{form.product_short_name(size=32)}}
+        {% if form.product_short_name.errors %}
+        <ul>
+            {% for error in form.product_short_name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <div>
+        {{form.product_description.label}}
+        <br>
+        {{form.product_description(size=32)}}
+        {% if form.product_description.errors %}
+        <ul>
+            {% for error in form.product_description.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {{ form.submit(class_="btn btn-secondary") }}
+    <div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+</form>
+
+{% endblock %}

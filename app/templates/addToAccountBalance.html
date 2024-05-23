@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Account</title>
+    <head>
+      <title>Account Balance</title>
+      <style>
+          table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: center; /* Center align the content of the table */
+          }
+  
+          th, td {
+              padding: 8px;
+              border-bottom: 1px solid #ddd;
+          }
+  
+          th {
+              background-color: #f2f2f2;
+          }
+  
+          .total-block {
+              background-color: #f2f2f2;
+              padding: 8px;
+              text-align: center; /* Center align the content of the total price block */
+          }
+      </style>
+  </head>
+  <body>
+    <h2>Current Account Balance: {{ user.balance }}</h2>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+          {{ form.amount.label }}<br/>
+          {{ form.amount(size=32) }}<br/>
+          {% for error in form.amount.errors %}
+          <span style="color: red;">[{{ error }}]</span>
+          {% endfor %}
+        </p>
+        <p>{{ form.submit1() }}{{ form.submit2() }}</p>
+      </form>
+  </body>
+  <p>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+  </p>
+  <a class="btn btn-secondary" href="{{ url_for('users.accountInfoPage') }}" role="button">Back</a>
+</html>
+
+{% endblock %}

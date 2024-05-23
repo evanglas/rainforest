@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<br><br>
+<h2>Feedback Posted by This User:</h2>
+<table class='table table-hover table-bordered container'>
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">User ID</th>
+      <th scope="col">Reviewed Product ID ("None" if seller review)</th>
+      <th scope="col">Reviewed Seller ID ("None" if product review)</th>      
+      <th scope="col">Rating</th>
+      <th scope="col">Review Text</th>      
+      <th scope="col">Review Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for review in reviews%}
+      <tr>
+        <th scope="row">{{review.reviewer_id}}</th>
+        <th scope="row">{{review.product_id}}</th>
+        <th scope="row">{{review.seller_id}}</th>
+        <th scope="row">{{review.rating}}</th>
+        <th scope="row">{{review.text}}</th>
+        <td>{{humanize_time(review.review_date)}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  <td colspan="7">{{ pagination.links }}</td>
+</table>
+<a class="btn btn-secondary" href="{{ url_for('reviews.reviewsearch') }}" role="button">Back</a>
+
+{% endblock %}

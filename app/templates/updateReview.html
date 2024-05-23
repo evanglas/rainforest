@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Add/Update Review {{subtitle}}</h1>
+
+<form action="" method="post">
+  {{ form.hidden_tag() }}
+  <p>
+    {{ form.rating.label }}<br/>
+    {{ form.rating(size=32) }}<br/>
+    {% for error in form.rating.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>
+    {{ form.text.label }}<br/>
+    {{ form.text(size=32) }}<br/>
+    {% for error in form.text.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+  <p>{{ form.submit() }}</p>
+</form>
+
+<h2>Delete Review</h2>
+<p>If you wish to delete a previously submitted review {{subtitle}}, please use the button below. <p>
+<form action="" method="post">
+  <p>{{ deleter.submit() }}</p>
+</form>
+
+{% endblock %}
